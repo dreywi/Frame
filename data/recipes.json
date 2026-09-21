@@ -1,0 +1,81 @@
+[
+  {
+    "id": 1,
+    "title": "Паста карбонара",
+    "category": "Основные блюда",
+    "servings": 2,
+    "cook_time_min": 25,
+    "calories_per_serving": 640.5,
+    "ingredients": [
+      {
+        "name": "Спагетти",
+        "amount": 200,
+        "unit": "г"
+      },
+      {
+        "name": "Бекон",
+        "amount": 150,
+        "unit": "г"
+      },
+      {
+        "name": "Яйца",
+        "amount": 2,
+        "unit": "шт"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Омлет",
+    "category": "Завтраки",
+    "servings": 1,
+    "cook_time_min": 10,
+    "calories_per_serving": 320.0,
+    "ingredients": [
+      {
+        "name": "Яйца",
+        "amount": 3,
+        "unit": "шт"
+      },
+      {
+        "name": "Молоко",
+        "amount": 50,
+        "unit": "мл"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Борщ",
+    "category": "Супы",
+    "servings": 6,
+    "cook_time_min": 120,
+    "calories_per_serving": 210.0,
+    "ingredients": [
+      {
+        "name": "Говядина",
+        "amount": 500,
+        "unit": "г"
+      },
+      {
+        "name": "Свекла",
+        "amount": 2,
+        "unit": "шт"
+      },
+      {
+        "name": "Капуста",
+        "amount": 300,
+        "unit": "г"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Котлеты по-киевски",
+    "category": "второе",
+    "servings": 3,
+    "cook_time_min": 30,
+    "calories_per_serving": 300.0,
+    "ingredients": []
+  }
+]
