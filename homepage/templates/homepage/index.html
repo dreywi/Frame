@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Главная - Recipe Service{% endblock %}
+
+{% block content %}
+    <h1 class="display-4">Recipe Service</h1>
+    <p class="lead">Сервис кулинарных рецептов с отзывами и оценками.</p>
+    <p>Основные разделы:</p>
+    <a href="{% url 'recipes:list' %}" class="btn btn-primary me-2">Рецепты</a>
+    <a href="{% url 'reviews:list' %}" class="btn btn-secondary">Отзывы</a>
+{% endblock %}
