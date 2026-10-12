@@ -1,3 +1,4 @@
 [flake8]
 exclude = venv,.git,__pycache__
 max-line-length = 79
+per-file-ignores = recipe_service/settings.py:E501
