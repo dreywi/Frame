@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 
+
 def page(title, content):
     bootstrap = (
         "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3"
@@ -33,7 +34,6 @@ def index(request):
     <a href="/reviews/" class="btn btn-secondary">Отзывы</a>
     """
     return HttpResponse(page("Recipe Service", content))
-
 
 
 def page_not_found(request, exception):
