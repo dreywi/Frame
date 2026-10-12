@@ -7,3 +7,5 @@ urlpatterns = [
     path("recipes/", include("recipes.urls")),
     path("reviews/", include("reviews.urls")),
 ]
+
+handler404 = "homepage.views.page_not_found"
