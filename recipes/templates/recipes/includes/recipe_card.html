@@ -1,0 +1,12 @@
+<article class="card recipe-card mb-3">
+    <div class="card-body">
+        <h2 class="card-title h4">{{ recipe.title|default:"Без названия" }}</h2>
+        <p class="card-text">
+            {{ recipe.category }}, {{ recipe.cook_time_min }} мин
+            ({{ recipe.speed_label }})
+        </p>
+        <a href="{% url 'recipes:detail' recipe.id %}" class="btn btn-primary">
+            Подробнее
+        </a>
+    </div>
+</article>

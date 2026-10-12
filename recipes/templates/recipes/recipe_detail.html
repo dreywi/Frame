@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if recipe %}
+        {{ recipe.title }} - Recipe Service
+    {% else %}
+        Рецепт не найден - Recipe Service
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {% if recipe %}
+        <div class="card recipe-card">
+            <div class="card-body">
+                <h1 class="card-title h3">{{ recipe.title }}</h1>
+                <p class="card-text">
+                    <strong>Категория:</strong> {{ recipe.category }}
+                </p>
+                <p class="card-text">
+                    <strong>Порций:</strong> {{ recipe.servings }}
+                </p>
+                <p class="card-text">
+                    <strong>Время:</strong> {{ recipe.cook_time_min }} мин
+                    ({{ recipe.speed_label }})
+                </p>
+                <p class="card-text">
+                    <strong>Калорийность порции:</strong>
+                    {{ recipe.calories_per_serving|floatformat:0 }} ккал
+                </p>
+                <p class="card-text">
+                    <strong>Средняя оценка:</strong>
+                    {% if rating %}
+                        <span class="badge bg-success rating">{{ rating }} / 5</span>
+                    {% else %}
+                        <span class="badge bg-secondary rating">нет оценок</span>
+                    {% endif %}
+                </p>
+                <h2 class="h5">
+                    Ингредиенты ({{ recipe.ingredients|length }}):
+                </h2>
+                <ul class="list-group">
+                    {% for ingredient in recipe.ingredients %}
+                        <li class="list-group-item">{{ ingredient }}</li>
+                    {% empty %}
+                        <li class="list-group-item">Ингредиенты не указаны.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% else %}
+        <h1 class="text-danger">Рецепт не найден</h1>
+        <p>Рецепт с указанным идентификатором отсутствует.</p>
+    {% endif %}
+    <a href="{% url 'recipes:list' %}" class="btn btn-outline-secondary mt-3">
+        &larr; к списку рецептов
+    </a>
+{% endblock %}
