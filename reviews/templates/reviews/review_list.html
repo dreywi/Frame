@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Отзывы - Recipe Service{% endblock %}
+
+{% block content %}
+    <h1>Отзывы</h1>
+    <p>Всего отзывов: {{ reviews|length }}</p>
+    <ul class="list-group">
+        {% for review in reviews %}
+            <li class="list-group-item d-flex justify-content-between">
+                <a href="{% url 'reviews:detail' review.id %}">
+                    №{{ review.id }}: {{ review.recipe.title }},
+                    {{ review.user.name }} - {{ review.rating }}/5
+                </a>
+                {% include "reviews/includes/review_status.html" %}
+            </li>
+        {% empty %}
+            <li class="list-group-item">Отзывы не найдены.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

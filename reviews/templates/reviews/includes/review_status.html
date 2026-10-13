@@ -1,0 +1,9 @@
+{% if review.is_deleted %}
+    <span class="badge bg-secondary review-status review-status-deleted">
+        удален
+    </span>
+{% else %}
+    <span class="badge bg-success review-status review-status-active">
+        активен
+    </span>
+{% endif %}

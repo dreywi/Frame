@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if review %}
+        Отзыв №{{ review.id }} - Recipe Service
+    {% else %}
+        Отзыв не найден - Recipe Service
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {% if review %}
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title h3">Отзыв №{{ review.id }}</h1>
+                <p class="card-text">
+                    <strong>Рецепт:</strong>
+                    <a href="{% url 'recipes:detail' review.recipe.id %}">
+                        {{ review.recipe.title }}
+                    </a>
+                </p>
+                <p class="card-text">
+                    <strong>Пользователь:</strong> {{ review.user.name }}
+                </p>
+                <p class="card-text">
+                    <strong>Оценка:</strong> {{ review.rating }} / 5
+                </p>
+                <p class="card-text">
+                    <strong>Комментарий:</strong>
+                    {{ review.comment|default:"без комментария" }}
+                </p>
+                <p class="card-text">
+                    <strong>Статус:</strong>
+                    {% include "reviews/includes/review_status.html" %}
+                </p>
+            </div>
+        </div>
+    {% else %}
+        <h1 class="text-danger">Отзыв не найден</h1>
+        <p>Отзыв с указанным идентификатором отсутствует.</p>
+    {% endif %}
+    <a href="{% url 'reviews:list' %}" class="btn btn-outline-secondary mt-3">
+        &larr; к списку отзывов
+    </a>
+{% endblock %}
