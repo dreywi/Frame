@@ -1,0 +1,36 @@
+body {
+    min-height: 100vh;
+    background-color: #fffaf3;
+}
+
+.site-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #f0d9b5;
+}
+
+.site-logo {
+    width: 64px;
+    height: auto;
+    margin: 0.75rem 0;
+}
+
+.recipe-card {
+    border: 1px solid #f0d9b5;
+    border-left: 6px solid #e07a2f;
+    border-radius: 8px;
+}
+
+.review-status {
+    font-weight: 600;
+}
+
+.review-status-deleted {
+    text-decoration: line-through;
+}
+
+.site-footer {
+    color: #8a7560;
+}
