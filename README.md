@@ -4,13 +4,16 @@
 Сервис для работы с кулинарными рецептами: просмотр, поиск, подбор по
 времени приготовления, пересчет ингредиентов на нужное число порций и
 отзывы пользователей с оценками. Консольная версия (ПР3) дополнена
-веб-интерфейсом на Django (ПР5).
+веб-интерфейсом на Django (ПР5), страницы которого построены на системе
+шаблонов Django (ПР6).
 
 ## Используемые технологии
 - Python 3;
 - Django 5.2 -- веб-фреймворк;
-- HTML -- разметка веб-страниц;
-- CSS и Bootstrap 5.3 (подключен через CDN) -- оформление страниц;
+- Django Template Language -- шаблоны страниц;
+- HTML -- разметка шаблонов;
+- Bootstrap 5.3 (подключен через CDN) и собственный CSS -- оформление;
+- JavaScript -- небольшое клиентское поведение (год в подвале);
 - pytest -- автоматизированные тесты;
 - flake8 -- проверка качества кода.
 
@@ -75,33 +78,67 @@ User ──оставляет──> Review ──относится к──> R
 `Recipe` содержит список `Ingredient` (композиция).
 
 ## Страницы веб-интерфейса
-| URL | View-функция | Содержимое |
-|---|---|---|
-| `/` | `homepage.views.index()` | описание сервиса и навигация |
-| `/recipes/` | `recipes.views.recipes()` | список рецептов из `data/recipes.json` |
-| `/recipes/<int:recipe_id>/` | `recipes.views.recipe_detail()` | карточка рецепта: категория, порции, время и скорость приготовления, калорийность, ингредиенты, средняя оценка |
-| `/reviews/` | `reviews.views.reviews()` | список отзывов из `data/reviews.json` со статусом |
-| `/reviews/<int:review_id>/` | `reviews.views.review_detail()` | карточка отзыва: рецепт (ссылка), пользователь, оценка, комментарий, статус |
+| URL | Имя маршрута | View-функция | Шаблон |
+|---|---|---|---|
+| `/` | `homepage:index` | `homepage.views.index()` | `homepage/index.html` |
+| `/recipes/` | `recipes:list` | `recipes.views.recipes()` | `recipes/recipe_list.html` |
+| `/recipes/<int:recipe_id>/` | `recipes:detail` | `recipes.views.recipe_detail()` | `recipes/recipe_detail.html` |
+| `/reviews/` | `reviews:list` | `reviews.views.reviews()` | `reviews/review_list.html` |
+| `/reviews/<int:review_id>/` | `reviews:detail` | `reviews.views.review_detail()` | `reviews/review_detail.html` |
 
-Если рецепт или отзыв с указанным идентификатором не найден, страница
-возвращает код 404. Для адресов без маршрута работает собственная
-страница 404 (`homepage.views.page_not_found()`, подключена через
-`handler404` в `recipe_service/urls.py`); она видна при `DEBUG = False`.
+Содержимое страниц:
+- главная -- описание сервиса и переходы к разделам;
+- список рецептов -- число рецептов и карточки с категорией, временем
+  и скоростью приготовления;
+- карточка рецепта -- категория, порции, время, калорийность,
+  средняя оценка, список ингредиентов;
+- список отзывов -- число отзывов, рецепт, пользователь, оценка, статус;
+- карточка отзыва -- рецепт (ссылка), пользователь, оценка,
+  комментарий, статус.
 
-View-функции не дублируют предметную логику: они загружают данные
-средствами ПР3 (`load_recipes()`, `load_users()`, `load_reviews()`),
-находят объект по идентификатору (`find_recipe_by_id()`,
-`find_review_by_id()`), вызывают методы модели (`speed_label()`,
-`average_rating()`) и формируют HTML-ответ.
+Если рецепт или отзыв не найден, шаблон показывает сообщение об этом,
+а ответ имеет код 404 (`render(..., status=404)`). Для адресов без
+маршрута работает собственная страница 404: `homepage.views.page_not_found()`
+и шаблон `homepage/page_not_found.html`, подключены через `handler404`
+в `recipe_service/urls.py`; видна при `DEBUG = False`.
 
-Все страницы собираются функцией `page()` из `homepage/views.py`: она
-задает общий HTML-каркас с кодировкой, заголовком вкладки, подключением
-Bootstrap и навигацией. Используются классы Bootstrap `container`,
-`nav`, `list-group`, `card`, `badge`, `btn`.
+## Шаблоны и представления
+View-функции не формируют HTML. Они загружают данные средствами ПР3
+(`load_recipes()`, `load_users()`, `load_reviews()`), находят объект
+(`find_recipe_by_id()`, `find_review_by_id()`), при необходимости
+вычисляют значения предметной логики (`average_rating()`), передают
+их в контекст и вызывают `render()`.
+
+Используемые возможности Django Template Language:
+- базовый шаблон `templates/base.html` с блоками `{% block title %}`
+  и `{% block content %}`; страницы наследуют его через `{% extends %}`;
+- включаемые шаблоны `{% include %}`: навигация
+  `includes/navigation.html`, карточка рецепта
+  `recipes/includes/recipe_card.html`, статус отзыва
+  `reviews/includes/review_status.html` (используется в списке и в
+  карточке отзыва);
+- вывод данных `{{ ... }}`, в том числе методы объектов без аргументов
+  (`{{ recipe.speed_label }}`);
+- циклы `{% for %}` с `{% empty %}` для пустых коллекций;
+- условия `{% if %}`: найден ли объект, есть ли оценка, удален ли отзыв;
+- именованные URL с пространствами имен (`app_name`): ссылки строятся
+  тегом `{% url 'recipes:detail' recipe.id %}`, жестко заданных адресов
+  в шаблонах нет;
+- фильтры: `length` (число рецептов, отзывов, ингредиентов), `default`
+  (пустой комментарий -> "без комментария"), `floatformat`
+  (калорийность без дробной части).
+
+## Статические файлы
+Подключаются в `base.html` через `{% load static %}` и `{% static %}`:
+- `homepage/static/homepage/css/style.css` -- собственные стили: фон,
+  шапка с логотипом, карточки рецептов (`recipe-card`), статусы отзывов
+  (`review-status-*`), подвал;
+- `homepage/static/homepage/js/main.js` -- выводит текущий год в подвале;
+- `homepage/static/homepage/img/logo.png` -- логотип в шапке.
 
 ## Основные операции
 
-### В веб-интерфейсе (ПР5)
+### В веб-интерфейсе
 - просмотр списка рецептов;
 - карточка рецепта с ингредиентами и средней оценкой;
 - просмотр списка отзывов;
@@ -131,6 +168,8 @@ Bootstrap и навигацией. Используются классы Bootstr
 пропускается. Отсутствующий файл или некорректный JSON не прерывают
 работу программы.
 
+Django ORM и база данных проекта пока не используются.
+
 ## Структура проекта
 ```text
 recipe-service/
@@ -143,25 +182,39 @@ recipe-service/
 ├── storage.py
 ├── utils.py
 ├── recipe_service/
-│   ├── __init__.py
 │   ├── settings.py
 │   ├── urls.py
 │   ├── asgi.py
 │   └── wsgi.py
+├── templates/
+│   ├── base.html
+│   └── includes/
+│       └── navigation.html
 ├── homepage/
+│   ├── templates/homepage/
+│   │   ├── index.html
+│   │   └── page_not_found.html
+│   ├── static/homepage/
+│   │   ├── css/style.css
+│   │   ├── js/main.js
+│   │   └── img/logo.png
 │   ├── views.py
-│   ├── urls.py
-│   └── ...
+│   └── urls.py
 ├── recipes/
+│   ├── templates/recipes/
+│   │   ├── recipe_list.html
+│   │   ├── recipe_detail.html
+│   │   └── includes/recipe_card.html
 │   ├── views.py
-│   ├── urls.py
-│   └── ...
+│   └── urls.py
 ├── reviews/
+│   ├── templates/reviews/
+│   │   ├── review_list.html
+│   │   ├── review_detail.html
+│   │   └── includes/review_status.html
 │   ├── views.py
-│   ├── urls.py
-│   └── ...
+│   └── urls.py
 ├── models/
-│   ├── __init__.py
 │   ├── users.py
 │   ├── recipes.py
 │   └── reviews.py
@@ -175,24 +228,22 @@ recipe-service/
     ├── test_reviews.py
     └── test_storage.py
 ```
-В каждом Django-приложении (`...`) также есть файлы, созданные
-`startapp`: `__init__.py`, `admin.py`, `apps.py`, `models.py`,
-`tests.py` и каталог `migrations/`; они будут заполнены в следующих
-работах.
+В Django-приложениях также есть файлы, созданные `startapp`
+(`__init__.py`, `admin.py`, `apps.py`, `models.py`, `tests.py`,
+`migrations/`); они будут заполнены в следующих работах.
 
 ## Назначение модулей
 - `manage.py` -- утилита управления Django-проектом;
-- `recipe_service/` -- пакет настроек: `settings.py` (настройки,
-  зарегистрированные приложения), `urls.py` (маршруты верхнего уровня
-  и `handler404`), `asgi.py`, `wsgi.py`;
-- `homepage/` -- главная страница, общий каркас `page()` и страница 404;
+- `recipe_service/settings.py` -- настройки: зарегистрированные
+  приложения, каталог шаблонов уровня проекта (`TEMPLATES["DIRS"]`);
+- `recipe_service/urls.py` -- маршруты верхнего уровня и `handler404`;
+- `templates/` -- общие шаблоны сайта: базовый шаблон и навигация;
+- `homepage/` -- главная страница, страница 404, статические файлы;
 - `recipes/` -- страницы списка и карточки рецепта;
 - `reviews/` -- страницы списка и карточки отзыва;
 - `main.py` -- консольная версия: меню и пользовательские сценарии;
-- `models/users.py` -- класс `User` и функции работы с пользователями;
-- `models/recipes.py` -- классы `Ingredient`, `Recipe` и функции работы
-  с рецептами;
-- `models/reviews.py` -- класс `Review` и функции работы с отзывами;
+- `models/` -- классы `User`, `Ingredient`, `Recipe`, `Review` и функции
+  работы с ними;
 - `storage.py` -- преобразование JSON <-> объекты;
 - `utils.py` -- безопасный ввод `input_int()`, `input_text()`.
 
@@ -231,16 +282,20 @@ flake8 .
 проверка длины строки (`per-file-ignores` в `.flake8`).
 
 ## Текущее состояние и план развития
-Реализовано (ПР5):
-- Django-проект `recipe_service` и приложения `homepage`, `recipes`,
-  `reviews`;
-- маршрутизация URL двух уровней (`include()`);
-- view-функции и страницы на данных ПР3;
-- собственная страница 404;
-- навигация между страницами, оформление Bootstrap 5.3.
+Реализовано:
+- ПР5: Django-проект `recipe_service`, приложения `homepage`, `recipes`,
+  `reviews`, маршрутизация двух уровней, страницы на данных ПР3;
+- ПР6: перевод всех страниц на шаблоны Django, базовый шаблон и
+  наследование, включаемые шаблоны, контекст, циклы и условия,
+  именованные URL с пространствами имен, фильтры, статические файлы
+  (CSS, JavaScript, изображение), страница 404 на шаблоне.
+
+Пока не реализовано:
+- данные хранятся в JSON-файлах, Django ORM не используется;
+- формы для создания и изменения данных отсутствуют;
+- работа с базой данных относится к следующим практическим работам.
 
 Планируется:
-- переход на шаблоны (`templates/`) и отказ от функции `page()`;
 - перенос `Recipe`, `Ingredient`, `Review` в Django ORM и подключение
   базы данных;
 - формы для операций, пока доступных только в консоли;
